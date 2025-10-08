@@ -95,7 +95,7 @@ automated-equity-valuation/
 
 **Agalya Ayyadurai**  
 MSc Financial Data Science, University of Surrey  
-LinkedIn: [(https://www.linkedin.com/in/agalya-ayyadurai-286517172/)]  
+LinkedIn: [https://www.linkedin.com/in/agalya-ayyadurai-286517172/]  
 
 ---
 

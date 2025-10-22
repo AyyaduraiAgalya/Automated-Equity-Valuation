@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 from .fsds_loader import load_fsds_from_zip
 
-def build_filings_index(
+def extract_metadata(
     zip_path: Path,
     forms=("10-K", "10-K/A", "20-F", "40-F"),         
     fp="FY",                  # Annual only (no quarterlies)

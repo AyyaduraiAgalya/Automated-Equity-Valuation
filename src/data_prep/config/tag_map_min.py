@@ -3,7 +3,123 @@
 # MONETARY maps for BS/IS/CF + a SINGLE combined SHARES map.
 
 # ---------- Balance Sheet (MONETARY) ----------
-BS = {
+# # BS = {
+#     "CashAndCashEquivalents": [
+#         "CashAndCashEquivalentsAtCarryingValue",
+#         "Cash",
+#         "RestrictedCashCurrent",
+#     ],
+#     "ShortTermInvestments": [
+#         "ShortTermInvestments",
+#     ],
+#     "AccountsReceivable": [
+#         "AccountsReceivableNetCurrent",
+#         "OtherReceivablesNetCurrent",
+#     ],
+#     "Inventory": [
+#         "InventoryNet",
+#     ],
+#     "TotalCurrentAssets": [
+#         "AssetsCurrent",
+#         "CurrentAssets",
+#     ],
+#     "PPandE": [
+#         "PropertyPlantAndEquipmentNet",
+#     ],
+#     "Goodwill": [
+#         "Goodwill",
+#     ],
+#     "Intangibles": [
+#         "IntangibleAssetsNetExcludingGoodwill",
+#         "FiniteLivedIntangibleAssetsNet",
+#     ],
+#     "TotalAssets": [
+#         "Assets",
+#     ],
+
+#     "AccountsPayable": [
+#         "AccountsPayableCurrent",
+#         "AccountsPayableAndAccruedLiabilitiesCurrent",
+#     ],
+#     "ShortTermDebt": [
+#         "LongTermDebtCurrent",
+#         "ShortTermBorrowings",
+#         "NotesPayableCurrent",
+#     ],
+#     "TotalCurrentLiabilities": [
+#         "LiabilitiesCurrent",
+#         "CurrentLiabilities",
+#     ],
+#     "LongTermDebt": [
+#         "LongTermDebtNoncurrent",
+#     ],
+#     "TotalLiabilities": [
+#         "Liabilities",
+#     ],
+#     "ShareholdersEquity": [
+#         "StockholdersEquity",
+#         "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+#         "Equity",
+#     ],
+
+#     "RetainedEarnings": [
+#         "RetainedEarningsAccumulatedDeficit",
+#     ],
+#     "APIC": [
+#         "AdditionalPaidInCapital",
+#         "AdditionalPaidInCapitalCommonStock",
+#     ],
+#     "TreasuryStock": [
+#         "TreasuryStockCommonValue",
+#         "TreasuryStockValue",
+#     ],
+
+#     "DeferredTaxAssets": [
+#         "DeferredIncomeTaxAssetsNet",
+#     ],
+#     "DeferredTaxLiabilities": [
+#         "DeferredIncomeTaxLiabilitiesNet",
+#     ],
+
+#     "LeaseROUAsset": [
+#         "OperatingLeaseRightOfUseAsset",
+#     ],
+#     "LeaseLiabilityCurrent": [
+#         "OperatingLeaseLiabilityCurrent",
+#     ],
+#     "LeaseLiabilityNoncurrent": [
+#         "OperatingLeaseLiabilityNoncurrent",
+#     ],
+
+#     "OtherCurrentAssets": [
+#         "PrepaidExpenseAndOtherAssetsCurrent",
+#         "PrepaidExpenseCurrent",
+#         "OtherAssetsCurrent",
+#     ],
+#     "OtherNoncurrentAssets": [
+#         "OtherAssetsNoncurrent",
+#         "LongTermInvestments",
+#     ],
+#     "OtherCurrentLiabilities": [
+#         "OtherLiabilitiesCurrent",
+#         "AccruedLiabilitiesCurrent",
+#         "TaxesPayableCurrent",
+#         "AccruedIncomeTaxesCurrent",
+#         "EmployeeRelatedLiabilitiesCurrent",
+#         "ContractWithCustomerLiabilityCurrent",
+#     ],
+#     "OtherNoncurrentLiabilities": [
+#         "OtherLiabilitiesNoncurrent",
+#         "LiabilitiesNoncurrent",
+#     ],
+
+#     "NoncontrollingInterest": [
+#         "MinorityInterest",
+#     ],
+# }
+
+BS_NEW = {
+    # --- ASSETS ---
     "CashAndCashEquivalents": [
         "CashAndCashEquivalentsAtCarryingValue",
         "Cash",
@@ -11,10 +127,14 @@ BS = {
     ],
     "ShortTermInvestments": [
         "ShortTermInvestments",
+        "InvestmentOwnedAtFairValue",
+        "InvestmentOwnedAtCost",
     ],
     "AccountsReceivable": [
         "AccountsReceivableNetCurrent",
         "OtherReceivablesNetCurrent",
+        "FinancingReceivableExcludingAccruedInterestBeforeAllowanceForCreditLoss",
+        "AllowanceForDoubtfulAccountsReceivableCurrent",
     ],
     "Inventory": [
         "InventoryNet",
@@ -25,6 +145,8 @@ BS = {
     ],
     "PPandE": [
         "PropertyPlantAndEquipmentNet",
+        "PropertyPlantAndEquipment",
+        "PropertyPlantAndEquipmentIncludingRightofuseAssets",
     ],
     "Goodwill": [
         "Goodwill",
@@ -32,19 +154,41 @@ BS = {
     "Intangibles": [
         "IntangibleAssetsNetExcludingGoodwill",
         "FiniteLivedIntangibleAssetsNet",
+        "IntangibleAssetsOtherThanGoodwill",
+        "IntangibleAssetsAndGoodwill",
+    ],
+    "LeaseROUAsset": [
+        "OperatingLeaseRightOfUseAsset",
+        "RightofuseAssets",
     ],
     "TotalAssets": [
         "Assets",
+        "LiabilitiesAndStockholdersEquity",
+        "LiabilitiesAndEquity",
+        "EquityAndLiabilities",
     ],
-
+    "TotalNoncurrentAssets": [
+        "AssetsNoncurrent",
+        "NoncurrentAssets",
+    ],
+    # --- LIABILITIES ---
     "AccountsPayable": [
         "AccountsPayableCurrent",
         "AccountsPayableAndAccruedLiabilitiesCurrent",
+        "TradeAndOtherCurrentPayables",
     ],
     "ShortTermDebt": [
         "LongTermDebtCurrent",
         "ShortTermBorrowings",
         "NotesPayableCurrent",
+    ],
+    "LeaseLiabilityCurrent": [
+        "OperatingLeaseLiabilityCurrent",
+        "CurrentLeaseLiabilities",
+    ],
+    "LeaseLiabilityNoncurrent": [
+        "OperatingLeaseLiabilityNoncurrent",
+        "NoncurrentLeaseLiabilities",
     ],
     "TotalCurrentLiabilities": [
         "LiabilitiesCurrent",
@@ -52,16 +196,39 @@ BS = {
     ],
     "LongTermDebt": [
         "LongTermDebtNoncurrent",
+        "LongtermBorrowings",
+    ],
+    "OtherCurrentLiabilities": [
+        "OtherLiabilitiesCurrent",
+        "AccruedLiabilitiesCurrent",
+        "TaxesPayableCurrent",
+        "AccruedIncomeTaxesCurrent",
+        "EmployeeRelatedLiabilitiesCurrent",
+        "ContractWithCustomerLiabilityCurrent",
+        "DerivativeLiabilitiesCurrent",
+    ],
+    "OtherNoncurrentLiabilities": [
+        "OtherLiabilitiesNoncurrent",
+        "LiabilitiesNoncurrent",
+        "NoncurrentLiabilities",
     ],
     "TotalLiabilities": [
         "Liabilities",
+        
     ],
+
+    # --- EQUITY ---
     "ShareholdersEquity": [
         "StockholdersEquity",
         "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
         "Equity",
+        "TotalEquity",
+        "EquityAttributableToOwnersOfParent",
+        
     ],
-
+    "TemporaryEquity": [
+        "TemporaryEquityCarryingAmountAttributableToParent"
+    ],
     "RetainedEarnings": [
         "RetainedEarningsAccumulatedDeficit",
     ],
@@ -73,50 +240,26 @@ BS = {
         "TreasuryStockCommonValue",
         "TreasuryStockValue",
     ],
-
-    "DeferredTaxAssets": [
-        "DeferredIncomeTaxAssetsNet",
+    "CommonStockValue": [
+        "CommonStockValue",
     ],
-    "DeferredTaxLiabilities": [
-        "DeferredIncomeTaxLiabilitiesNet",
+    "PreferredStockValue": [
+        "PreferredStockValue",
     ],
-
-    "LeaseROUAsset": [
-        "OperatingLeaseRightOfUseAsset",
+    "CommonStockParValue": [
+        "CommonStockParOrStatedValuePerShare",
     ],
-    "LeaseLiabilityCurrent": [
-        "OperatingLeaseLiabilityCurrent",
+    "PreferredStockParValue": [
+        "PreferredStockParOrStatedValuePerShare",
     ],
-    "LeaseLiabilityNoncurrent": [
-        "OperatingLeaseLiabilityNoncurrent",
+    "AccumulatedOCI": [
+        "AccumulatedOtherComprehensiveIncomeLossNetOfTax",
     ],
-
-    "OtherCurrentAssets": [
-        "PrepaidExpenseAndOtherAssetsCurrent",
-        "PrepaidExpenseCurrent",
-        "OtherAssetsCurrent",
-    ],
-    "OtherNoncurrentAssets": [
-        "OtherAssetsNoncurrent",
-        "LongTermInvestments",
-    ],
-    "OtherCurrentLiabilities": [
-        "OtherLiabilitiesCurrent",
-        "AccruedLiabilitiesCurrent",
-        "TaxesPayableCurrent",
-        "AccruedIncomeTaxesCurrent",
-        "EmployeeRelatedLiabilitiesCurrent",
-        "ContractWithCustomerLiabilityCurrent",
-    ],
-    "OtherNoncurrentLiabilities": [
-        "OtherLiabilitiesNoncurrent",
-        "LiabilitiesNoncurrent",
-    ],
-
     "NoncontrollingInterest": [
         "MinorityInterest",
     ],
 }
+
 
 # ---------- Income Statement (MONETARY) ----------
 IS = {
@@ -476,7 +619,7 @@ SHARES = {
     ],
 }
 
-# ---------- Units ----------
+# ---------- Units ---------- #
 UOM_MULTIPLIERS = {
     "USD": 1.0,
     "USDm": 1e6,

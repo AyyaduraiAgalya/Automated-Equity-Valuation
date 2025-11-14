@@ -47,11 +47,11 @@ def extract_cash_flows(zip_path: Path) -> pd.DataFrame:
     num_cf = num.merge(cf_tags, on=["adsh", "tag"], how="inner")
 
     # 4) Restrict to annual report forms (adjust to {"10-K"} if you want only US domestic)
-    valid_forms = {"10-K", "10-K/A", "20-F", "40-F"}
+    valid_forms = {"10-K", "10-K/A"}
     sub_filtered = sub[sub["form"].isin(valid_forms)].copy()
 
     # 5) Attach filing/company metadata to each numeric CF row
-    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic"]
+    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic", "instance"]
     cf_full = num_cf.merge(sub_filtered[meta_cols], on="adsh", how="left")
 
     # 6) Numeric coercion; drop rows with non-numeric or missing values

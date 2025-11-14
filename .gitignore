@@ -213,3 +213,5 @@ archive/**/*.csv
 data/raw/*.zip
 notebooks/logs/*.csv
 logs/**/**/*.csv
+data/*.csv
+data/*.json

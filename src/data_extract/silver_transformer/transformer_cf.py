@@ -1,11 +1,11 @@
 from __future__ import annotations
 from pathlib import Path
 import pandas as pd
-from src.data_prep.bronze_extractor.extractor_bs import extract_balance_sheets
-from src.data_prep.config.tag_map_min import UOM_MULTIPLIERS, MONETARY_UOMS
-from src.data_prep.config.tag_map_min import BS as BS_TAGMAP  # forward: canon -> [synonyms]
+from src.data_extract.bronze_extractor.extractor_cf import extract_cash_flows
+from src.data_extract.config.tag_map_min import UOM_MULTIPLIERS, MONETARY_UOMS
+from src.data_extract.config.tag_map_min import CF as CF_TAGMAP  # forward: canon -> [synonyms]
 
-FORMS = {"10-K", "10-K/A"}  # US annual
+FORMS = {"10-K", "10-K/A"}  
 
 def _reverse_map(forward: dict[str, list[str]]) -> dict[str, str]:
     """canon->synonyms  ==>  tag->canon (include canon itself)."""
@@ -22,18 +22,18 @@ def _uom_mult(u) -> float:
         if ul == k.lower(): return v
     return 1.0
 
-def transform_balance_sheet_to_wide(
+def transform_cash_flow_to_wide(
     zip_path: Path,
-    tag_map: dict[str, list[str]] = BS_TAGMAP,   # forward map
+    tag_map: dict[str, list[str]] = CF_TAGMAP,   # forward map
     out_path: Path | None = None,
     return_unknown: bool = False,
 ):
     """
-    Silver transformer for Balance Sheet (BS), one FSDS ZIP (e.g., 2025Q2).
+    Silver transformer for Cash Flow (CF), one FSDS ZIP (e.g., 2025Q2).
 
     Steps:
-      1) Bronze: extract BS long
-      2) Filter to FY-at-period, qtrs == '0' (instant at period)
+      1) Bronze: extract CF long
+      2) Filter to FY-at-period, qtrs == '4' (annual duration)
       3) Monetary-only, normalize units
       4) Map raw tags -> canonical (reverse map)
       5) Resolve collisions per (adsh, canon)
@@ -44,36 +44,36 @@ def transform_balance_sheet_to_wide(
       wide_df  (and unknown_df if return_unknown=True)
     """
     # 1) Bronze
-    bs_long = extract_balance_sheets(zip_path)
-    if bs_long.empty:
+    cf_long = extract_cash_flows(zip_path)
+    if cf_long.empty:
         return (pd.DataFrame(), pd.DataFrame()) if return_unknown else pd.DataFrame()
 
-    # 2) FY-at-period, instant (BS)
-    bs_long = bs_long[
-        (bs_long["form"].isin(FORMS)) &
-        (bs_long["fp"].str.upper() == "FY") &
-        (bs_long["qtrs"] == "0") &
-        (bs_long["ddate"] == bs_long["period"])
+    # 2) FY-at-period, annual duration (cash flow is duration-based)
+    cf_long = cf_long[
+        (cf_long["form"].isin(FORMS)) &
+        (cf_long["fp"].str.upper() == "FY") &
+        (cf_long["qtrs"] == "4") &
+        (cf_long["ddate"] == cf_long["period"])
     ].copy()
-    if bs_long.empty:
+    if cf_long.empty:
         return (pd.DataFrame(), pd.DataFrame()) if return_unknown else pd.DataFrame()
 
     # 3) Monetary-only + normalization
     monetary_uoms = {u.lower() for u in MONETARY_UOMS}
-    bs_long = bs_long[bs_long["uom"].str.lower().isin(monetary_uoms)].copy()
+    cf_long = cf_long[cf_long["uom"].str.lower().isin(monetary_uoms)].copy()
 
-    bs_long["value"] = pd.to_numeric(bs_long["value"], errors="coerce")
-    bs_long["value"] = bs_long["value"] * bs_long["uom"].map(_uom_mult)
-    bs_long = bs_long.dropna(subset=["value"])
-    if bs_long.empty:
+    cf_long["value"] = pd.to_numeric(cf_long["value"], errors="coerce")
+    cf_long["value"] = cf_long["value"] * cf_long["uom"].map(_uom_mult)
+    cf_long = cf_long.dropna(subset=["value"])
+    if cf_long.empty:
         return (pd.DataFrame(), pd.DataFrame()) if return_unknown else pd.DataFrame()
 
     # 4) Mapping
     reverse = _reverse_map(tag_map)        # tag -> canon
-    bs_long["canon"] = bs_long["tag"].map(reverse)
+    cf_long["canon"] = cf_long["tag"].map(reverse)
 
-    unknown = bs_long[bs_long["canon"].isna()].copy()
-    mapped  = bs_long[bs_long["canon"].notna()].copy()
+    unknown = cf_long[cf_long["canon"].isna()].copy()
+    mapped  = cf_long[cf_long["canon"].notna()].copy()
     if mapped.empty:
         return (pd.DataFrame(), unknown) if return_unknown else pd.DataFrame()
 

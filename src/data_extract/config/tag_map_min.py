@@ -5,6 +5,7 @@
 BS = {
     # --- ASSETS ---
     "CashAndCashEquivalents": [
+        # Prefer clean cash & restricted cash rolled into "cash equivalents" where provided
         "CashAndCashEquivalentsAtCarryingValue",
         "Cash",
         "RestrictedCashCurrent",
@@ -29,8 +30,8 @@ BS = {
     ],
     "PPandE": [
         "PropertyPlantAndEquipmentNet",
-        "PropertyPlantAndEquipment",
         "PropertyPlantAndEquipmentIncludingRightofuseAssets",
+        "PropertyPlantAndEquipment",
     ],
     "Goodwill": [
         "Goodwill",
@@ -41,11 +42,8 @@ BS = {
         "IntangibleAssetsOtherThanGoodwill",
         "IntangibleAssetsAndGoodwill",
     ],
-    "LeaseROUAsset": [
-        "OperatingLeaseRightOfUseAsset",
-        "RightofuseAssets",
-    ],
     "TotalAssets": [
+        # Any of these represent total assets (or the A=L+E identity label)
         "Assets",
         "LiabilitiesAndStockholdersEquity",
         "LiabilitiesAndEquity",
@@ -55,6 +53,7 @@ BS = {
         "AssetsNoncurrent",
         "NoncurrentAssets",
     ],
+
     # --- LIABILITIES ---
     "AccountsPayable": [
         "AccountsPayableCurrent",
@@ -65,14 +64,6 @@ BS = {
         "LongTermDebtCurrent",
         "ShortTermBorrowings",
         "NotesPayableCurrent",
-    ],
-    "LeaseLiabilityCurrent": [
-        "OperatingLeaseLiabilityCurrent",
-        "CurrentLeaseLiabilities",
-    ],
-    "LeaseLiabilityNoncurrent": [
-        "OperatingLeaseLiabilityNoncurrent",
-        "NoncurrentLeaseLiabilities",
     ],
     "TotalCurrentLiabilities": [
         "LiabilitiesCurrent",
@@ -98,61 +89,35 @@ BS = {
     ],
     "TotalLiabilities": [
         "Liabilities",
-        
     ],
 
-    # --- EQUITY ---
+    # --- EQUITY (keep only items used for leverage/ROE analysis) ---
     "ShareholdersEquity": [
         "StockholdersEquity",
         "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
         "Equity",
         "TotalEquity",
         "EquityAttributableToOwnersOfParent",
-        
-    ],
-    "TemporaryEquity": [
-        "TemporaryEquityCarryingAmountAttributableToParent"
     ],
     "RetainedEarnings": [
         "RetainedEarningsAccumulatedDeficit",
-    ],
-    "APIC": [
-        "AdditionalPaidInCapital",
-        "AdditionalPaidInCapitalCommonStock",
     ],
     "TreasuryStock": [
         "TreasuryStockCommonValue",
         "TreasuryStockValue",
     ],
-    "CommonStockValue": [
-        "CommonStockValue",
-    ],
-    "PreferredStockValue": [
-        "PreferredStockValue",
-    ],
-    "CommonStockParValue": [
-        "CommonStockParOrStatedValuePerShare",
-    ],
-    "PreferredStockParValue": [
-        "PreferredStockParOrStatedValuePerShare",
-    ],
-    "AccumulatedOCI": [
-        "AccumulatedOtherComprehensiveIncomeLossNetOfTax",
-    ],
-    "NoncontrollingInterest": [
-        "MinorityInterest",
-    ],
+    # (Dropped: APIC, par values, AccumulatedOCI, NoncontrollingInterest, TemporaryEquity, Preferred/Common stock value)
 }
 
 
 # ---------- Income Statement (MONETARY) ----------
 IS = {
+    # Prefer ASC 606 excluding assessed tax, then generic total, then including tax, then sales-only
     "Revenue": [
-        "Revenues",
-        "Revenue",
-        "SalesRevenueNet",
         "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "Revenues",
         "RevenueFromContractWithCustomerIncludingAssessedTax",
+        "SalesRevenueNet",
     ],
     "CostOfRevenue": [
         "CostOfRevenue",
@@ -172,8 +137,8 @@ IS = {
     ],
     "DepAmort": [
         "DepreciationAndAmortization",
-        "Depreciation",
         "DepreciationDepletionAndAmortization",
+        "Depreciation",
     ],
     "OperatingExpenses": [
         "OperatingExpenses",
@@ -187,8 +152,8 @@ IS = {
         "InterestExpense",
         "InterestExpenseNonoperating",
         "FinanceCosts",
-        "InterestIncomeExpenseNet",
         "InterestIncomeExpenseNonoperatingNet",
+        "InterestIncomeExpenseNet",
     ],
     "PretaxIncome": [
         "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
@@ -196,38 +161,23 @@ IS = {
         "IncomeLossFromContinuingOperations",
     ],
     "IncomeTaxExpense": [
-        "IncomeTaxExpenseBenefit",
         "IncomeTaxExpenseContinuingOperations",
+        "IncomeTaxExpenseBenefit",
     ],
     "NetIncome": [
         "NetIncomeLoss",
         "ProfitLoss",
     ],
-
     "OtherIncomeExpense": [
         "NonoperatingIncomeExpense",
         "OtherNonoperatingIncomeExpense",
         "OtherNonoperatingIncome",
-        "OtherIncome",
         "OtherOperatingIncomeExpenseNet",
+        "OtherIncome",
     ],
-    "EquityMethodIncome": [
-        "IncomeLossFromEquityMethodInvestments",
-    ],
-    "DebtExtinguishmentGainLoss": [
-        "GainsLossesOnExtinguishmentOfDebt",
-    ],
-    "Impairment": [
-        "GoodwillImpairmentLoss",
-    ],
-    "ComprehensiveIncome": [
-        "ComprehensiveIncomeNetOfTax",
-        "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
-        "ComprehensiveIncomeNetOfTaxAttributableToNoncontrollingInterest",
-        "OtherComprehensiveIncomeLossForeignCurrencyTransactionAndTranslationAdjustmentNetOfTax",
-        "OtherComprehensiveIncomeForeignCurrencyTransactionAndTranslationAdjustmentNetOfTaxPortionAttributableToParent",
-    ],
+    # (Dropped: EquityMethodIncome, DebtExtinguishmentGainLoss, Impairment, ComprehensiveIncome)
 }
+
 
 # ---------- Cash Flow (MONETARY) ----------
 CF = {
@@ -244,6 +194,7 @@ CF = {
         "CashFlowsFromUsedInFinancingActivities",
     ],
 
+    # Capex for FCF; include incurred-but-not-paid as fallback
     "CapEx": [
         "PaymentsToAcquirePropertyPlantAndEquipment",
         "CapitalExpendituresIncurredButNotYetPaid",
@@ -251,13 +202,8 @@ CF = {
     "ProceedsFromSalePPE": [
         "ProceedsFromSaleOfPropertyPlantAndEquipment",
     ],
-    "AcquireIntangibles": [
-        "PaymentsToAcquireIntangibleAssets",
-    ],
-    "BusinessAcquisitions": [
-        "PaymentsToAcquireBusinessesNetOfCashAcquired",
-    ],
 
+    # Capital allocation signals
     "ShareRepurchase": [
         "PaymentsForRepurchaseOfCommonStock",
     ],
@@ -277,10 +223,11 @@ CF = {
         "RepaymentsOfRelatedPartyDebt",
     ],
 
+    # Non-cash addbacks and comp
     "DepAmortCF": [
         "DepreciationAndAmortization",
-        "Depreciation",
         "DepreciationDepletionAndAmortization",
+        "Depreciation",
         "AmortizationOfIntangibleAssets",
         "AmortizationOfDebtDiscountPremium",
     ],
@@ -288,34 +235,7 @@ CF = {
         "ShareBasedCompensation",
     ],
 
-    "ChangeInAR": [
-        "IncreaseDecreaseInAccountsReceivable",
-    ],
-    "ChangeInAP": [
-        "IncreaseDecreaseInAccountsPayable",
-        "IncreaseDecreaseInAccountsPayableAndAccruedLiabilities",
-        "IncreaseDecreaseInAccountsPayableTrade",
-        "IncreaseDecreaseInOtherAccountsPayableAndAccruedLiabilities",
-    ],
-    "ChangeInInventory": [
-        "IncreaseDecreaseInInventories",
-    ],
-    "ChangeInDeferredRevenue": [
-        "IncreaseDecreaseInDeferredRevenue",
-        "IncreaseDecreaseInContractWithCustomerLiability",
-    ],
-    "ChangeInPrepaidAndOther": [
-        "IncreaseDecreaseInPrepaidDeferredExpenseAndOtherAssets",
-        "IncreaseDecreaseInPrepaidExpense",
-        "IncreaseDecreaseInOtherOperatingAssets",
-        "IncreaseDecreaseInOtherNoncurrentAssets",
-    ],
-    "ChangeInAccruedLiabilities": [
-        "IncreaseDecreaseInAccruedLiabilities",
-        "IncreaseDecreaseInAccruedLiabilitiesAndOtherOperatingLiabilities",
-        "IncreaseDecreaseInAccruedIncomeTaxesPayable",
-    ],
-
+    # Cash paid (useful for FCF to firm/equity variants and sanity checks)
     "InterestPaid": [
         "InterestPaidNet",
     ],
@@ -323,27 +243,24 @@ CF = {
         "IncomeTaxesPaidNet",
         "IncomeTaxesPaid",
     ],
-    "FXEffect": [
-        "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
-        "EffectOfExchangeRateOnCashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations",
-        "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsPeriodIncreaseDecreaseIncludingExchangeRateEffect",
-    ],
-    "ROUAssetNoncash": [
-        "RightOfUseAssetObtainedInExchangeForOperatingLeaseLiability",
-    ],
+
+    # (Dropped: AcquireIntangibles, BusinessAcquisitions, all ChangeIn* working-capital lines, FXEffect, ROUAssetNoncash)
 }
+
 
 # ---------- SHARES (single combined map for shares/per-share & variants) ----------
 SHARES = {
+    # Keep minimal set required for market-cap/EPS/DCF per-share work
+
     # --- Point-in-time share counts (common) ---
     "CommonSharesOutstanding": [
         "CommonStockSharesOutstanding",
         "NumberOfSharesOutstanding",
         "SharesOutstanding",
-        "NumberOfSharesOutstandingBasic",  # some filers put basic count here
+        "NumberOfSharesOutstandingBasic",
         "CommonStockSharesOutstandingIncludingEffectOfRecapitalization",
-        "CommonStockSharesNotOutstanding",  # some filers invert semantics; keep for visibility
-        "CommonStockLiabilityShares",       # SPAC-like lines; treat cautiously
+        "CommonStockSharesNotOutstanding",
+        "CommonStockLiabilityShares",
         "CommonStockRepresentativeShares",
     ],
     "CommonSharesIssued": [
@@ -351,101 +268,6 @@ SHARES = {
         "NumberOfSharesIssued",
         "SharesIssued",
         "CommonStockIssuedShares",
-    ],
-    "CommonSharesAuthorized": [
-        "CommonStockSharesAuthorized",
-        "NumberOfSharesAuthorised",
-        "NumberOfSharesAuthorized",
-        "CommopnStockSharesAuthorized",  # common misspelling in some datasets
-        "CommonUnitAuthorized",
-        "CapitalUnitsAuthorized",
-    ],
-
-    # --- Preferred shares ---
-    "PreferredSharesOutstanding": [
-        "PreferredStockSharesOutstanding",
-    ],
-    "PreferredSharesIssued": [
-        "PreferredStockSharesIssued",
-    ],
-    "PreferredSharesAuthorized": [
-        "PreferredStockSharesAuthorized",
-    ],
-    "PreferredSharesDesignated": [
-        "PreferredStockSharesDesignated",
-        "ConvertiblePreferredStockSharesDesignated",
-        "ConvertiblePreferredStockDesignated",
-        "PreferredStockSharesUndesignated",
-    ],
-
-    # --- Treasury / temporary equity ---
-    "TreasuryShares": [
-        "TreasuryStockCommonShares",
-        "TreasuryStockShares1",
-        "TreasuryStockSharesOutstanding",
-    ],
-    "TemporaryEquityShares": [
-        "TemporaryEquitySharesOutstanding",
-        "TemporaryEquitySharesIssued",
-        "TemporaryEquitySharesAuthorized",
-        "SharesSubjectToMandatoryRedemptionSettlementTermsNumberOfShares",
-        "CommonStockSharesPendingSubjectToRedemption",
-    ],
-
-    # --- Units / partnerships / LLC interests ---
-    "UnitsOutstanding": [
-        "LimitedPartnersCapitalAccountUnitsOutstanding",
-        "GeneralPartnersCapitalAccountUnitsOutstanding",
-        "PreferredUnitsOutstanding",
-        "LimitedLiabilityCompanyLlcProfitsInterestsSharesOutstanding",
-    ],
-    "UnitsIssued": [
-        "GeneralPartnersCapitalAccountUnitsIssued",
-        "LimitedLiabilityCompanyLlcProfitsInterestsSharesIssued",
-        "ConvertiblePreferredUnitsIssued",
-        "CommonUnitsToBeIssued",
-        "CommonUnitIssued",
-    ],
-    "UnitsAuthorized": [
-        "LimitedLiabilityCompanyLLCPreferredUnitAuthorized",
-    ],
-
-    # --- Reserved / issuable / to be issued / designated buckets ---
-    "SharesReservedForFutureIssuance": [
-        "CommonStockCapitalSharesReservedForFutureIssuance",
-    ],
-    "SharesIssuable": [
-        "CommonStockSharesIssuable",
-        "CommonStockIssuableShares",
-        "CommonStockYetToBeIssued",
-        "CommonStockToBeIssuedShares",
-        "CommonSharesToBeIssuedShares",
-    ],
-    "SharesDesignated": [
-        "CommonStockSharesDesignated",
-        "PreferredStockSharesDesignated",
-        "DeferredStockSharesAuthorized",
-        "DeferredStockSharesIssued",
-        "DeferredStockSharesOutstanding",
-    ],
-
-    # --- Warrants / rights / ADS / other instruments ---
-    "WarrantsRightsOutstanding": [
-        "ClassOfWarrantOrRightOutstanding",
-    ],
-    "WarrantsRightsIssued": [
-        "ClassOfWarrantsOrRightIssued",
-        "WarrantsExercisedCashless",  # event-like, but tracked as share count by some filers
-    ],
-    "ADSOutstanding": [
-        "AmericanDepositSharesOutstanding",
-        "AmericanDepositSharesOutstandingDiluted",
-        "WeightedAverageNumberOfAmericanDepositorySharesDilutedSharesOutstanding",
-        "WeightedAverageNumberOfAmericanDepositorySharesBasicSharesOutstanding",
-        "WeightedAverageNumberOfAmericanDepositarySharesOutstandingBasic",
-        "WeightedAverageNumberOfAmericanDepositorySharesOutstandingBasic",
-        "WeightedAverageNumberOfAmericanDepositorySharesOutstandingDiluted",
-        "NumberOfOrdinarySharesForEachAds",
     ],
 
     # --- Weighted-average shares (period aggregates) ---
@@ -455,7 +277,7 @@ SHARES = {
         "WeightedAverageNumberOfCommonSharesOutstandingBasic",
         "BasicWeightedAverageNumberOfSharesOutstanding",
         "BasicWeightedAverageCommonShares",
-        "WeightedAverageSharesOutstandingOfNonredeemableCommonStock",  # some SPACs
+        "WeightedAverageSharesOutstandingOfNonredeemableCommonStock",
         "WeightedAverageNumberOfSharesOutstandingBasic1",
         "WeightedAverageNumberOfSharesOutstandingDuringThePeriodBasic",
     ],
@@ -469,7 +291,7 @@ SHARES = {
         "WeightedAverageNumberOfSharesOutstandingDuringThePeriodDiluted",
         "WeightedAverageNumberOfDilutedAmericanDepositarySharesOutstanding",
         "WeightedAverageNumberOfDilutedSharesOutstanding1",
-        "WeightedAverageOrdinarySharesOutstandingBasicAndDiluted",  # some filers put combined; we’ll map also in combo
+        "WeightedAverageOrdinarySharesOutstandingBasicAndDiluted",
         "WeightedAverageSharesOutstandingOfRedeemableCommonStock",
     ],
     "WASOCombinedBasicDiluted": [
@@ -479,29 +301,18 @@ SHARES = {
         "WeightedAverageNumberOfShareOutstandingBasicAndDiluted",
         "AverageNumberOfCommonShareOutstandingBasicAndDiluted",
         "BasicAndDilutedWeightedAverageNumberOfSharesOutstanding",
-        "WeightedAverageLimitedPartnershipUnitsOutstandingBasicAndDiluted",  # pattern variants
-    ],
-    "WASOAdjustmentsDiluted": [
-        "WeightedAverageNumberDilutedSharesOutstandingAdjustment",
-    ],
-    "WASOProFormaDiluted": [
-        "ProFormaWeightedAverageSharesOutstandingDiluted",
-    ],
-    "WASOLimitedPartnership": [
-        "WeightedAverageLimitedPartnershipUnitsOutstanding",
-        "WeightedAverageLimitedPartnershipUnitsOutstandingDiluted",
+        "WeightedAverageLimitedPartnershipUnitsOutstandingBasicAndDiluted",
     ],
 
-    # --- Other/diagnostic share metrics ---
-    "AntidilutiveExcluded": [
-        "AntidilutiveSecuritiesExcludedFromComputationOfEarningsPerShareAmount",
-    ],
-
-    # --- Minimal EPS bucket (since one EPS tag was in your list) ---
+    # Minimal EPS (optional but handy)
     "EPS": [
         "EarningsPerShareAttributableToCommonShareholders",
     ],
+
+    # (Dropped: all Preferred/Authorized/Designated/Units/TreasuryShares/TemporaryEquityShares/
+    #          WarrantsRights*/ADSOutstanding/AntidilutiveExcluded/WASOAdjustmentsDiluted/WASOProFormaDiluted/WASOLimitedPartnership)
 }
+
 
 # ---------- Units ---------- #
 UOM_MULTIPLIERS = {

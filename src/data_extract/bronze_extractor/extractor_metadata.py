@@ -6,7 +6,7 @@ from .fsds_loader import load_fsds_from_zip
 
 def extract_metadata(
     zip_path: Path,
-    forms=("10-K", "10-K/A", "20-F", "40-F"),         
+    forms=("10-K", "10-K/A"),         
     fp="FY",                  # Annual only (no quarterlies)
     out_path: Path | None = None
 ) -> pd.DataFrame:
@@ -37,7 +37,7 @@ def extract_metadata(
     # 3) Filter to the desired filings: e.g., only 10-K and only 'FY' (annual)
     mask = sub["form"].isin(forms) & (sub["fp"].str.upper() == fp)
     idx = sub.loc[
-        mask, ["adsh","cik","name","form","fy","fp","period","filed","sic"]
+        mask, ["adsh","cik","name","form","fy","fp","period","filed","sic", "instance"]
     ].drop_duplicates()
 
     # 4) Sorting is optional but helpful for eyeballing results (latest first)

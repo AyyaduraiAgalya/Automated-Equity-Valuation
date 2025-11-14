@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 from collections import defaultdict
-from src.bronze_extractor.fsds_loader import load_fsds_from_zip
+from src.data_extract.bronze_extractor.fsds_loader import load_fsds_from_zip
 
 FORMS = {"10-K", "10-K/A", "20-F", "40-F"}
 

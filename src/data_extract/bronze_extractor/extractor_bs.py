@@ -23,7 +23,7 @@ def extract_balance_sheets(zip_path: Path) -> pd.DataFrame:
           - source_zip: the ZIP filename (traceability)
     NOTE:
         - This returns a LONG (tidy) table. Pivot to WIDE (one row per adsh, columns=tags)
-          is a separate, small step you can do after mapping tags to canonical names.
+          is a separate, small step - can do after mapping tags to canonical names.
     """
 
     # 1) Load raw FSDS tables from the ZIP
@@ -46,11 +46,11 @@ def extract_balance_sheets(zip_path: Path) -> pd.DataFrame:
     num_bs = num.merge(bs_tags, on=["adsh", "tag"], how="inner")
 
     # 4) Keep only annual report forms (adjust as you like)
-    valid_forms = {"10-K", "10-K/A", "20-F", "40-F"}  # you can reduce to {"10-K"} if desired
+    valid_forms = {"10-K", "10-K/A"}  # you can reduce to {"10-K"} if desired
     sub_filtered = sub[sub["form"].isin(valid_forms)].copy()
 
     # 5) Attach filing/company metadata to each numeric fact row
-    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic"]
+    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic", "instance"]
     bs_full = num_bs.merge(sub_filtered[meta_cols], on="adsh", how="left")
 
     # 6) Clean numeric values; drop non-numeric or empty values

@@ -56,7 +56,7 @@ def load_fsds_from_zip(zip_path: Path):
                 )
 
     # Define our target columns (these rarely change)
-    sub_cols = ["adsh", "cik", "name", "form", "fy", "fp", "period", "filed", "sic"]
+    sub_cols = ["adsh", "cik", "name", "form", "fy", "fp", "period", "filed", "sic", "instance"]
     pre_cols = ["adsh", "tag", "stmt", "report", "line", "version"]
     num_cols = ["adsh", "tag", "ddate", "qtrs", "uom", "value", "coreg", "dimh", "iprx", "version"]
     tag_cols = ["tag", "tlabel", "version", "abstract"]

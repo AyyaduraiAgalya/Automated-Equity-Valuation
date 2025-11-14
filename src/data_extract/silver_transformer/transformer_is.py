@@ -1,11 +1,15 @@
 from __future__ import annotations
 from pathlib import Path
 import pandas as pd
-from src.data_prep.bronze_extractor.extractor_cf import extract_cash_flows
-from src.data_prep.config.tag_map_min import UOM_MULTIPLIERS, MONETARY_UOMS
-from src.data_prep.config.tag_map_min import CF as CF_TAGMAP  # forward: canon -> [synonyms]
 
-FORMS = {"10-K", "10-K/A"}  
+# Bronze extractor (parallel to your BS extractor)
+from src.data_extract.bronze_extractor.extractor_is import extract_income_statements
+
+# Tag map + unit handling (reuse same config module as BS)
+from src.data_extract.config.tag_map_min import UOM_MULTIPLIERS, MONETARY_UOMS
+from src.data_extract.config.tag_map_min import IS as IS_TAGMAP  # forward: canon -> [synonyms]
+
+FORMS = {"10-K", "10-K/A"}  # keep it US annual, clean and consistent
 
 def _reverse_map(forward: dict[str, list[str]]) -> dict[str, str]:
     """canon->synonyms  ==>  tag->canon (include canon itself)."""
@@ -22,17 +26,17 @@ def _uom_mult(u) -> float:
         if ul == k.lower(): return v
     return 1.0
 
-def transform_cash_flow_to_wide(
+def transform_income_statement_to_wide(
     zip_path: Path,
-    tag_map: dict[str, list[str]] = CF_TAGMAP,   # forward map
+    tag_map: dict[str, list[str]] = IS_TAGMAP,   # forward map
     out_path: Path | None = None,
     return_unknown: bool = False,
 ):
     """
-    Silver transformer for Cash Flow (CF), one FSDS ZIP (e.g., 2025Q2).
+    Silver transformer for Income Statement (IS), one FSDS ZIP (e.g., 2025Q2).
 
     Steps:
-      1) Bronze: extract CF long
+      1) Bronze: extract IS long
       2) Filter to FY-at-period, qtrs == '4' (annual duration)
       3) Monetary-only, normalize units
       4) Map raw tags -> canonical (reverse map)
@@ -44,40 +48,45 @@ def transform_cash_flow_to_wide(
       wide_df  (and unknown_df if return_unknown=True)
     """
     # 1) Bronze
-    cf_long = extract_cash_flows(zip_path)
-    if cf_long.empty:
+    is_long = extract_income_statements(zip_path)
+    if is_long.empty:
         return (pd.DataFrame(), pd.DataFrame()) if return_unknown else pd.DataFrame()
 
-    # 2) FY-at-period, annual duration (cash flow is duration-based)
-    cf_long = cf_long[
-        (cf_long["form"].isin(FORMS)) &
-        (cf_long["fp"].str.upper() == "FY") &
-        (cf_long["qtrs"] == "4") &
-        (cf_long["ddate"] == cf_long["period"])
+    # 2) FY-at-period, annual duration
+    #    IS is duration-based: qtrs == '4' and ddate == period
+    is_long = is_long[
+        (is_long["form"].isin(FORMS)) &
+        (is_long["fp"].str.upper() == "FY") &
+        (is_long["qtrs"] == "4") &
+        (is_long["ddate"] == is_long["period"])
     ].copy()
-    if cf_long.empty:
+
+    if is_long.empty:
         return (pd.DataFrame(), pd.DataFrame()) if return_unknown else pd.DataFrame()
 
     # 3) Monetary-only + normalization
     monetary_uoms = {u.lower() for u in MONETARY_UOMS}
-    cf_long = cf_long[cf_long["uom"].str.lower().isin(monetary_uoms)].copy()
+    is_long = is_long[is_long["uom"].str.lower().isin(monetary_uoms)].copy()
 
-    cf_long["value"] = pd.to_numeric(cf_long["value"], errors="coerce")
-    cf_long["value"] = cf_long["value"] * cf_long["uom"].map(_uom_mult)
-    cf_long = cf_long.dropna(subset=["value"])
-    if cf_long.empty:
+    is_long["value"] = pd.to_numeric(is_long["value"], errors="coerce")
+    is_long["value"] = is_long["value"] * is_long["uom"].map(_uom_mult)
+    is_long = is_long.dropna(subset=["value"])
+
+    if is_long.empty:
         return (pd.DataFrame(), pd.DataFrame()) if return_unknown else pd.DataFrame()
 
     # 4) Mapping
     reverse = _reverse_map(tag_map)        # tag -> canon
-    cf_long["canon"] = cf_long["tag"].map(reverse)
+    is_long["canon"] = is_long["tag"].map(reverse)
 
-    unknown = cf_long[cf_long["canon"].isna()].copy()
-    mapped  = cf_long[cf_long["canon"].notna()].copy()
+    unknown = is_long[is_long["canon"].isna()].copy()
+    mapped  = is_long[is_long["canon"].notna()].copy()
+
     if mapped.empty:
-        return (pd.DataFrame(), unknown) if return_unknown else pd.DataFrame()
+        out = (pd.DataFrame(), unknown) if return_unknown else pd.DataFrame()
+        return out
 
-    # 5) Resolve collisions (prefer first-listed synonym, else choose by |value|)
+    # 5) Resolve collisions (first-listed synonym preferred, else by |value|)
     pref_rank = {}
     for canon, syns in tag_map.items():
         order = [canon, *(syns or [])]

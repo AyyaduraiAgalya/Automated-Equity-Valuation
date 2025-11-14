@@ -1,8 +1,8 @@
 from __future__ import annotations
 from pathlib import Path
 import pandas as pd
-from src.data_prep.bronze_extractor.fsds_loader import load_fsds_from_zip
-from src.data_prep.config.tag_map_min import SHARES as SHARES_TAGMAP
+from src.data_extract.bronze_extractor.fsds_loader import load_fsds_from_zip
+from src.data_extract.config.tag_map_min import SHARES as SHARES_TAGMAP
 
 FORMS = {"10-K", "10-K/A"}  # keep it US annual
 

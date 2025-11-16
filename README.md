@@ -1,92 +1,142 @@
-# Automated Equity Valuation
 
-This repository is part of my MSc Financial Data Science dissertation project.  
-It aims to **automate the process of pulling company financial statements, forecasting key financial drivers, and using those forecasts as assumptions for equity valuation models** — addressing one of the key pain points in traditional equity research: the manual, assumption-heavy nature of financial modeling.
+# Fundamental Stochastic Dynamics & Portfolio Fragility  
+### MSc Financial Data Science Dissertation — Agalya Ayyadurai
 
----
+This repository contains the implementation, data pipeline, and empirical results for my dissertation research on **stochastic modelling of corporate fundamentals** and its implications for **equity return predictability** and **portfolio fragility**.
 
-## Project Overview
-
-In equity research, analysts often rely on manual assumptions when forecasting revenues, margins, and other key drivers.
-This project builds a **data-driven valuation engine** that combines:
-
-1. **Automated Data Retrieval** — Pulls structured financial statements from public sources (e.g., SEC filings).  
-2. **Driver Forecasting Models** — Uses statistical and machine learning models to project future revenues, margins, and cash flows.  
-3. **Automated Valuation Framework** — Integrates forecasts into valuation models (e.g., DCF) for intrinsic value estimation.  
-4. **Interactive Dashboard** — A web-based interface (built with Dash) for users to explore results and interact with the model dynamically.  
+The central idea of this work is that **fundamental drivers such as revenue growth are not deterministic accounting quantities**, but evolve as **stochastic diffusion processes** influenced by competitive dynamics, innovation cycles, macroeconomic shocks, and sectoral evolution.
 
 ---
 
-## System Architecture (MVP-1)
+## Dissertation Structure & Contribution
+
+The project is organised into **five major research components**, which build on one another:
+
+### A. Stochastic Modelling of Fundamentals (Core Theory Chapter)
+
+Goal: Characterise the statistical behaviour of **revenue growth** at the **sector level**.
+
+Steps:
+- Compute **log revenue growth** for each firm-year.
+- Group firms into sectors: **Technology, Healthcare, Consumer, Utilities**.
+- Estimate parameters of a **discrete AR(1) process**, interpreted as a discretised **Ornstein–Uhlenbeck (OU)** diffusion:
+
+  $$ g_{i,t+1} = \alpha + \phi g_{i,t} + \varepsilon_{i,t} $$
+
+Mapping to continuous-time OU parameters:
+
+$$ \kappa = -\frac{\ln(\phi)}{\Delta t}, \quad
+\mu = \frac{\alpha}{1 - \phi}, \quad
+\sigma = \sqrt{\frac{2\kappa\sigma_\varepsilon^2}{1-\phi^2}} $$
+
+Interpretation:
+- **μ (long‑run growth level)**: sector equilibrium growth
+- **κ (mean‑reversion speed)**: competitive reversion forces
+- **σ (fundamental volatility)**: shock intensity and uncertainty
+
+Research output:
+- Compare which sectors exhibit **stable vs unstable fundamental dynamics**.
+- Discuss implications for valuation, predictability and sector resilience.
+
+### B. Predictive Modelling (Core Empirics)
+
+Research question:
+> Do sectors with stable and/or high fundamental growth exhibit **higher subsequent stock returns**?
+
+Proposed model:
+A **panel regression** linking next‑year returns to current fundamentals and sector diffusion characteristics:
+
+$$ R_{i,t+1} = \beta_0 + \beta_1 Valuation_{i,t} + \beta_2 Profitability_{i,t} +
+\beta_3 \sigma_s + \beta_4 \mu_s + \beta_5 \kappa_s + u_{i,t} $$
+
+Where:
+- dependent variable: **next‑year stock return**
+- independent variables include:
+  - firm fundamentals (e.g., profitability, leverage, cash generation)
+  - sector stochastic parameters (μ, σ, κ)
+  - optionally **past returns or volatility**
+
+Model choice justification:
+- Combines theory-driven structure with empirical validation.
+- Avoids purely prediction‑driven black‑box modelling.
+
+### C. Portfolio Construction
+
+Use **expected returns** (from Model B) and **risk estimates** to construct sample portfolios such as:
+
+- **Market-cap benchmark**
+- **Minimum-variance portfolio**
+- **Model-informed high‑expected‑return portfolio**
+
+Methodology: **Markowitz mean‑variance optimisation**.
+
+### D. Stability & Fragility Analysis
+
+Using stochastic fundamentals + estimated return model:
+
+1. **Simulate future revenue diffusion paths** using OU dynamics.
+2. **Simulate return and portfolio value trajectories**.
+3. Define **an escape threshold** (e.g., portfolio drawdown below −30%).
+4. Estimate **escape probability** = probability portfolio falls below threshold.
+5. Compare portfolio resilience across strategies.
+
+This connects to literature on **portfolio fragility**, **escape rates**, and **dynamical systems in finance**.
+
+### E. Backtesting & Robustness
+
+- Train on historical period (e.g., up to 2020/2021)
+- Validate on 2022–2023
+- (Optional) Test on more recent 2024–2025 observations
+
+Evaluation considerations:
+- structural breaks, sector rotation
+- non-stationarity in fundamentals
+- limitations of annual frequency data
+
+---
+
+## Data Source & Engineering
+
+Data Source: **SEC Financial Statement Data Sets**  
+🔗 https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets
+
+Data Pipeline:
+```
+ZIP → Bronze (raw tables: num, pre, bs, is, cf)
+     → Silver (cleaned + standardised identifiers, fiscal date alignment)
+     → Gold (panel dataset: firm, sector, fundamentals, log revenue growth)
+```
+
+Coverage:
+- 8,000+ US public firms
+- Approx. 15 years of annual data (10‑K focus)
+- Sector mapping via SIC → manually consolidated sector buckets
+
+---
+
+## Methods Summary (Keywords for Research Indexing)
+
+- Stochastic Processes for Fundamentals
+- Ornstein–Uhlenbeck Diffusion
+- Discrete‑time AR(1) Estimation
+- Panel Regression for Expected Returns
+- Markowitz Efficient Frontier
+- Portfolio Fragility & Escape Probability
+- SEC Financial Statement Data Ingestion
+- Empirical Asset Pricing and Fundamental Risk
+
+---
+
+## Repository Structure (Research Code)
 
 ```
-Data Source (SEC)
-        ↓
-Data Ingestion & Transformation (Neon PostgreSQL)
-        ↓
-Driver Forecasting (ML Models)
-        ↓
-Valuation Engine (DCF & Multiples)
-        ↓
-Interactive Dash Dashboard
-        ↓
-Deployment (Render)
-```
-
----
-
-## Objectives
-
-- Automate financial data ingestion for public US companies.
-- Build modular forecasting pipelines for key drivers such as **revenue**, **operating income**, and **free cash flow**.
-- Generate intrinsic value estimates using both statistical and discounted cash flow models.
-- Visualise the results through an interactive, cloud-deployed dashboard.
-
----
-
-## Stack
-
-| Category | Tools / Libraries |
-|-----------|------------------|
-| Data | `sec-api`, `pandas`, `requests`, `SQLAlchemy` |
-| Modelling | `scikit-learn`, `statsmodels`, `prophet` |
-| Dashboard | `Dash`, `Plotly` |
-| Database | `PostgreSQL (Neon / AWS RDS)` |
-| Deployment | `Render`, `AWS EC2` |
-| Versioning | `Git`, `GitHub` |
-
----
-
-## MVP Progress
-
-| Milestone | Description | Status |
-|------------|--------------|--------|
-| MVP 1 | End-to-end system with annual data, baseline ML forecast, Render + Neon deployment | In progress |
-| MVP 2 | Upgrade to AWS RDS + EC2 deployment, add ARIMA/Prophet forecasting | Planned |
-| MVP 3 | Integrate quarterly reports, advanced model comparison, and REST API endpoints | Future |
-
----
-
-## Research Context
-
-This work contributes to the **automation of fundamental valuation** workflows in equity research and investment analysis.  
-By empirically testing forecasting accuracy and valuation reliability, it also explores the intersection of **data science**, **financial modelling**, and **decision automation**.
-
----
-
-## Repository Structure
-
-```
-automated-equity-valuation/
-│
-├── src/                # Core logic (data ingestion, modeling, valuation)
-├── dashboard/          # Dash web app
-├── notebooks/          # Jupyter Notebooks for initial coding
-├── data/               # Local data cache (optional)
-├── docs/               # Documentation and diagrams
-├── tests/              # Unit tests
-├── requirements.txt
-└── README.md
+/data/bronze            Raw SEC extracts
+/data/silver            Cleaned/standardised fundamentals
+/data/gold              Final panel set for modeling
+/notebooks              Exploratory + model estimation notes
+/src/data_extract       SEC ETL pipeline
+/src/data_model         AR(1) + OU parameter estimation
+/src/portfolio          (planned) portfolio & escape simulations
 ```
 
 ---
@@ -94,21 +144,11 @@ automated-equity-valuation/
 ## Author
 
 **Agalya Ayyadurai**  
-MSc Financial Data Science, University of Surrey  
-LinkedIn: [https://www.linkedin.com/in/agalya-ayyadurai-286517172/]  
+MSc Financial Data Science — University of Surrey  
+🔗 LinkedIn: https://www.linkedin.com/in/agalya-ayyadurai-286517172/
 
 ---
 
-## Disclaimer
+## ⚠ Disclaimer
+This project is for academic research only and does not constitute investment advice.
 
-This project is for **academic and educational purposes only**.  
-The valuation outputs are not intended as investment advice or recommendations.
-
----
-
-## Next Steps
-
-- MVP 1 development (data ingestion → forecasting → valuation → dashboard → Render deploy)
-- Incorporate cloud databases (Neon → AWS RDS)
-- Explore advanced ML models (Prophet, LSTM)
-- Automate report generation for equity summaries

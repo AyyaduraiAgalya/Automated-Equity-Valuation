@@ -1,6 +1,7 @@
 from src.data_prep.prep_config import PREP_CONFIG
 import pandas as pd
 import numpy as np
+from pathlib import Path
 # -----------------------------
 # STEP 1: Check columns
 # -----------------------------
@@ -176,12 +177,60 @@ def standardise_features(df, config=PREP_CONFIG, scalers=None):
 
 # -----------------------------
 # STEP 11: Map SIC → industry buckets
-# (To implement later; stub for now)
 # -----------------------------
-def map_sic_to_industry_bucket(df):
-    # TODO: implement a proper mapping later
-    # For now, just keep existing 'industry' col as-is.
-    return df
+
+def map_sic_to_industry(df: pd.DataFrame,
+                     sic_mapping_path: str | Path = "data/sic_office_industry.csv"
+                    ) -> pd.DataFrame:
+    """
+    Attach SEC SIC Office and Industry Title metadata to a DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input DataFrame that must contain a 'sic' column (int or string).
+    sic_mapping_path : str or Path, optional
+        Path to CSV file with columns: 'sic', 'office', 'industry_title'.
+        Defaults to 'data/sic_office_industry.csv'.
+
+    Returns
+    -------
+    pd.DataFrame
+        Copy of df with three new columns:
+        - 'office'
+        - 'industry_title'
+        - 'office_industry_title'
+
+    Notes
+    -----
+    The SIC mapping is sourced from:
+    https://www.sec.gov/search-filings/standard-industrial-classification-sic-code-list
+    """
+    if "sic" not in df.columns:
+    # nothing to do
+        return df
+
+    sic_mapping_path = Path(sic_mapping_path)
+
+    # Load mapping
+    mapping = pd.read_csv(
+        sic_mapping_path,
+        dtype={"sic": "Int64"}  # keep SIC as nullable integer
+    )
+
+    # Ensure consistent type for merge
+    df_out = df.copy()
+    df_out["sic"] = df_out["sic"].astype("Int64")
+
+    # Merge on 'sic'
+    df_out = df_out.merge(mapping, how="left", on="sic")
+
+    # # Optional: combined column
+    # df_out["office_industry_title"] = (
+    #     df_out["office"].fillna("") + " - " + df_out["industry_title"].fillna("")
+    # ).str.strip(" -")  # clean up if one side is missing
+
+    return df_out
 
 
 # -----------------------------
@@ -227,6 +276,6 @@ def process_fundamentals(df_raw, config=PREP_CONFIG, scalers=None, verbose=True)
     df, scalers = standardise_features(df, config=config, scalers=scalers)
 
     # 11. Map SIC → industry buckets (stub)
-    df = map_sic_to_industry_bucket(df)
+    df = map_sic_to_industry(df)
 
     return df, scalers

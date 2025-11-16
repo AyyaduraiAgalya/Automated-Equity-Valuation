@@ -32,26 +32,31 @@ def extract_balance_sheets(zip_path: Path) -> pd.DataFrame:
 
     # 2) Find all (adsh, tag) pairs that belong to the Balance Sheet (stmt == 'BS')
     #    We uppercase to be safe against minor casing differences.
-    bs_tags = pre.loc[pre["stmt"].str.upper() == "BS", ["adsh", "tag"]].drop_duplicates()
+    bs_tags = pre.loc[pre["stmt"].astype(str).str.upper() == "BS", ["adsh","tag"]].drop_duplicates()
 
     # Edge case: if no BS tags found, return empty quickly
     if bs_tags.empty:
         return pd.DataFrame(columns=[
             "adsh","tag","ddate","qtrs","uom","value",
-            "cik","name","form","fy","fp","period","filed","sic","source_zip"
+            "cik","name","form","fy","fp","period","filed","sic","instance",
+            "fye","accepted","countryba","stprba","source_zip",
         ])
+
 
     # 3) Keep only numeric facts for those BS (adsh, tag) pairs
     #    Inner join drops anything not in the BS presentation for that filing.
     num_bs = num.merge(bs_tags, on=["adsh", "tag"], how="inner")
 
-    # 4) Keep only annual report forms (adjust as you like)
-    valid_forms = {"10-K", "10-K/A"}  # you can reduce to {"10-K"} if desired
+    # 4) Keep only annual and quarterly report forms (adjust as you like)
+    valid_forms = {"10-K", "10-K/A", "10-Q", "10-Q/A"}
     sub_filtered = sub[sub["form"].isin(valid_forms)].copy()
 
     # 5) Attach filing/company metadata to each numeric fact row
-    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic", "instance"]
+    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic","instance",
+    "fye","accepted","countryba","stprba"]
+    meta_cols = [c for c in meta_cols if c in sub_filtered.columns]
     bs_full = num_bs.merge(sub_filtered[meta_cols], on="adsh", how="left")
+
 
     # 6) Clean numeric values; drop non-numeric or empty values
     bs_full["value"] = pd.to_numeric(bs_full["value"], errors="coerce")

@@ -40,18 +40,22 @@ def extract_cash_flows(zip_path: Path) -> pd.DataFrame:
     if cf_tags.empty:
         return pd.DataFrame(columns=[
             "adsh","tag","version","ddate","qtrs","uom","coreg","value",
-            "cik","name","form","fy","fp","period","filed","sic","source_zip"
+            "cik","name","form","fy","fp","period","filed","sic","instance",
+            "fye","accepted","countryba","stprba","source_zip",
         ])
+
 
     # 3) Keep only numeric facts for those (adsh, tag) pairs on the Cash Flow statement
     num_cf = num.merge(cf_tags, on=["adsh", "tag"], how="inner")
 
-    # 4) Restrict to annual report forms (adjust to {"10-K"} if you want only US domestic)
-    valid_forms = {"10-K", "10-K/A"}
+    # 4) Restrict to annual and quarterly report forms (adjust to {"10-K"} if you want only US domestic)
+    valid_forms = {"10-K", "10-K/A", "10-Q", "10-Q/A"}
     sub_filtered = sub[sub["form"].isin(valid_forms)].copy()
 
     # 5) Attach filing/company metadata to each numeric CF row
-    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic", "instance"]
+    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic","instance",
+    "fye","accepted","countryba","stprba"]
+    meta_cols = [c for c in meta_cols if c in sub_filtered.columns]
     cf_full = num_cf.merge(sub_filtered[meta_cols], on="adsh", how="left")
 
     # 6) Numeric coercion; drop rows with non-numeric or missing values

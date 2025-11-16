@@ -25,7 +25,11 @@ def load_fsds_from_zip(zip_path: Path):
         for key in ("sub", "pre", "num", "tag"):
             try:
                 # SEC files look like "2025q2/sub.txt", "2025q2/num.txt", etc.
-                need[key] = next(n for n in names if n.lower() == (f"{key}.txt"))
+                # need[key] = next(n for n in names if n.lower() == (f"{key}.txt"))
+                need[key] = next(
+                    n for n in names
+                    if n.lower().endswith(f"/{key}.txt") or n.lower() == f"{key}.txt"
+                )
             except StopIteration:
                 raise FileNotFoundError(f"{key}.txt not found in {zip_path.name}")
 
@@ -56,7 +60,8 @@ def load_fsds_from_zip(zip_path: Path):
                 )
 
     # Define our target columns (these rarely change)
-    sub_cols = ["adsh", "cik", "name", "form", "fy", "fp", "period", "filed", "sic", "instance"]
+    sub_cols = ["adsh", "cik", "name", "form", "fy", "fp", "period", "filed", "sic",
+    "instance", "fye", "accepted", "countryba", "stprba"]
     pre_cols = ["adsh", "tag", "stmt", "report", "line", "version"]
     num_cols = ["adsh", "tag", "ddate", "qtrs", "uom", "value", "coreg", "dimh", "iprx", "version"]
     tag_cols = ["tag", "tlabel", "version", "abstract"]

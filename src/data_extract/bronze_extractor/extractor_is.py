@@ -37,26 +37,32 @@ def extract_income_statements(zip_path: Path) -> pd.DataFrame:
 
     # 2) Identify Income Statement tags from the presentation table
     #    Most quarters use stmt == 'IS' for income statement.
-    #    (If you later see variants like 'CI' or 'INC', you can broaden this filter.)
-    is_tags = pre.loc[pre["stmt"].str.upper() == "IS", ["adsh", "tag"]].drop_duplicates()
+    #    (If later see variants like 'CI' or 'INC', you can broaden this filter.)
+    stmt_series = pre["stmt"].astype(str).str.upper()
+    is_tags = pre.loc[stmt_series == "IS", ["adsh", "tag"]].drop_duplicates()
+
 
     # Edge case: if nothing found, return an empty, well-formed DataFrame
     if is_tags.empty:
         return pd.DataFrame(columns=[
             "adsh","tag","version","ddate","qtrs","uom","coreg","value",
-            "cik","name","form","fy","fp","period","filed","sic","source_zip"
+            "cik","name","form","fy","fp","period","filed","sic","instance",
+            "fye","accepted","countryba","stprba","source_zip",
         ])
+
 
     # 3) Keep only numeric facts for those (adsh, tag) pairs on the Income Statement
     #    Inner join ensures we only get tags presented on IS for each filing.
     num_is = num.merge(is_tags, on=["adsh", "tag"], how="inner")
 
-    # 4) Restrict to annual report forms (adjust to {"10-K"} if you want only US domestic)
-    valid_forms = {"10-K", "10-K/A"}
+    # 4) Restrict to annual and quarterly report forms (adjust to {"10-K"} if you want only US domestic)
+    valid_forms = {"10-K", "10-K/A", "10-Q", "10-Q/A"}
     sub_filtered = sub[sub["form"].isin(valid_forms)].copy()
 
     # 5) Attach filing/company metadata to each numeric IS row
-    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic", "instance"]
+    meta_cols = ["adsh","cik","name","form","fy","fp","period","filed","sic","instance",
+    "fye","accepted","countryba","stprba"]
+    meta_cols = [c for c in meta_cols if c in sub_filtered.columns]
     is_full = num_is.merge(sub_filtered[meta_cols], on="adsh", how="left")
 
     # 6) Numeric coercion; drop rows with non-numeric or missing values

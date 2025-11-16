@@ -3,7 +3,7 @@ import pandas as pd
 from collections import defaultdict
 from src.data_extract.bronze_extractor.fsds_loader import load_fsds_from_zip
 
-FORMS = {"10-K", "10-K/A", "20-F", "40-F"}
+FORMS = {"10-K", "10-K/A"}
 
 def _fy_at_period_filter(df_num: pd.DataFrame, df_sub: pd.DataFrame, stmt: str) -> pd.DataFrame:
     df = df_num.merge(df_sub[["adsh","period","form","fp"]], on="adsh", how="left")

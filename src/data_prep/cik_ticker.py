@@ -72,6 +72,7 @@ def attach_tickers(df_fundamentals: pd.DataFrame, cik_map: pd.DataFrame) -> pd.D
 import json
 import pandas as pd
 
+#---- Using inferred tickers from FSDS zips - this is a experimental function----#
 def load_sec_cik_ticker_exchange(local_path: str) -> pd.DataFrame:
     """
     Load SEC company_tickers_exchange.json (table-style) and return cik -> ticker mapping.
@@ -111,6 +112,7 @@ def load_sec_cik_ticker_exchange(local_path: str) -> pd.DataFrame:
     df = df.drop_duplicates(subset=["cik"]).reset_index(drop=True)
 
     return df
+
 
 def infer_cik_tickers_from_fsds_zips(
     zips_root: str,

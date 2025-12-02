@@ -1,154 +1,109 @@
+# Intrinsic Equity Valuation with Machine Learning: Detecting Mispricing and Alpha from 10-K Reports of U.S. Companies (2009-2025)
+### MSc Financial Data Science Dissertation - Agalya Ayyadurai
 
-# Fundamental Stochastic Dynamics & Portfolio Fragility  
-### MSc Financial Data Science Dissertation — Agalya Ayyadurai
+This repository contains the full data pipeline, modelling code, and research workflow for my dissertation:  
+**“Intrinsic Equity Valuation with Machine Learning: Detecting Mispricing and Alpha from 10-K Reports of U.S. Companies (2009-2025)”**
 
-This repository contains the implementation, data pipeline, and empirical results for my dissertation research on **stochastic modelling of corporate fundamentals** and its implications for **equity return predictability** and **portfolio fragility**.
-
-The central idea of this work is that **fundamental drivers such as revenue growth are not deterministic accounting quantities**, but evolve as **stochastic diffusion processes** influenced by competitive dynamics, innovation cycles, macroeconomic shocks, and sectoral evolution.
-
----
-
-## Dissertation Structure & Contribution
-
-The project is organised into **five major research components**, which build on one another:
-
-### A. Stochastic Modelling of Fundamentals (Core Theory Chapter)
-
-Goal: Characterise the statistical behaviour of **revenue growth** at the **sector level**.
-
-Steps:
-- Compute **log revenue growth** for each firm-year.
-- Group firms into sectors: **Technology, Healthcare, Consumer, Utilities**.
-- Estimate parameters of a **discrete AR(1) process**, interpreted as a discretised **Ornstein–Uhlenbeck (OU)** diffusion:
-
-  $$ g_{i,t+1} = \alpha + \phi g_{i,t} + \varepsilon_{i,t} $$
-
-Mapping to continuous-time OU parameters:
-
-$$ \kappa = -\frac{\ln(\phi)}{\Delta t}, \quad
-\mu = \frac{\alpha}{1 - \phi}, \quad
-\sigma = \sqrt{\frac{2\kappa\sigma_\varepsilon^2}{1-\phi^2}} $$
-
-Interpretation:
-- **μ (long‑run growth level)**: sector equilibrium growth
-- **κ (mean‑reversion speed)**: competitive reversion forces
-- **σ (fundamental volatility)**: shock intensity and uncertainty
-
-Research output:
-- Compare which sectors exhibit **stable vs unstable fundamental dynamics**.
-- Discuss implications for valuation, predictability and sector resilience.
-
-### B. Predictive Modelling (Core Empirics)
-
-Research question:
-> Do sectors with stable and/or high fundamental growth exhibit **higher subsequent stock returns**?
-
-Proposed model:
-A **panel regression** linking next‑year returns to current fundamentals and sector diffusion characteristics:
-
-$$ R_{i,t+1} = \beta_0 + \beta_1 Valuation_{i,t} + \beta_2 Profitability_{i,t} +
-\beta_3 \sigma_s + \beta_4 \mu_s + \beta_5 \kappa_s + u_{i,t} $$
-
-Where:
-- dependent variable: **next‑year stock return**
-- independent variables include:
-  - firm fundamentals (e.g., profitability, leverage, cash generation)
-  - sector stochastic parameters (μ, σ, κ)
-  - optionally **past returns or volatility**
-
-Model choice justification:
-- Combines theory-driven structure with empirical validation.
-- Avoids purely prediction‑driven black‑box modelling.
-
-### C. Portfolio Construction
-
-Use **expected returns** (from Model B) and **risk estimates** to construct sample portfolios such as:
-
-- **Market-cap benchmark**
-- **Minimum-variance portfolio**
-- **Model-informed high‑expected‑return portfolio**
-
-Methodology: **Markowitz mean‑variance optimisation**.
-
-### D. Stability & Fragility Analysis
-
-Using stochastic fundamentals + estimated return model:
-
-1. **Simulate future revenue diffusion paths** using OU dynamics.
-2. **Simulate return and portfolio value trajectories**.
-3. Define **an escape threshold** (e.g., portfolio drawdown below −30%).
-4. Estimate **escape probability** = probability portfolio falls below threshold.
-5. Compare portfolio resilience across strategies.
-
-This connects to literature on **portfolio fragility**, **escape rates**, and **dynamical systems in finance**.
-
-### E. Backtesting & Robustness
-
-- Train on historical period (e.g., up to 2020/2021)
-- Validate on 2022–2023
-- (Optional) Test on more recent 2024–2025 observations
-
-Evaluation considerations:
-- structural breaks, sector rotation
-- non-stationarity in fundamentals
-- limitations of annual frequency data
+The project investigates whether machine-learning models can estimate intrinsic value from financial statement fundamentals, and whether mispricing signals derived from model residuals can generate long–short trading strategies.
 
 ---
 
-## Data Source & Engineering
+## Project Overview
 
-Data Source: **SEC Financial Statement Data Sets**  
-🔗 https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets
+The project is organised around a reproducible data and modelling workflow:
 
-Data Pipeline:
-```
-ZIP → Bronze (raw tables: num, pre, bs, is, cf)
-     → Silver (cleaned + standardised identifiers, fiscal date alignment)
-     → Gold (panel dataset: firm, sector, fundamentals, log revenue growth)
-```
+1. **Data Extraction (Bronze–Silver–Gold pipeline)**  
+   The `data_extract` module ingests raw SEC EDGAR 10-K financial statement files (ZIP archives) and organises them into a structured bronze–silver–gold layout:
+   - **bronze** – raw downloaded files and index metadata as obtained from SEC EDGAR,
+   - **silver** – extracted and structured financial statement tables,
+   - **gold** – a consolidated annual fundamentals panel at the firm–year level ready to be used by notebooks.
 
-Coverage:
-- 8,000+ US public firms
-- Approx. 15 years of annual data (10‑K focus)
-- Sector mapping via SIC → manually consolidated sector buckets
+   This architecture is focused on *data extraction and assembly* into a single modelling dataset. Cleaning, exploratory analysis, and modelling are performed in subsequent notebooks.
 
----
+2. **Dataset Preparation and Exploratory Analysis**  
+   Jupyter notebooks load the gold-layer dataset, perform basic sanity checks, construct core variables, and explore the distributional properties of revenues and other key fundamentals.
 
-## Methods Summary (Keywords for Research Indexing)
+3. **Mean Reversion and Time-Series Diagnostics**  
+   Sector-level revenue growth is analysed using ADF and KPSS tests, AR(1) models, and Ornstein–Uhlenbeck (OU) parameters to assess mean-reversion behaviour across industries.
 
-- Stochastic Processes for Fundamentals
-- Ornstein–Uhlenbeck Diffusion
-- Discrete‑time AR(1) Estimation
-- Panel Regression for Expected Returns
-- Markowitz Efficient Frontier
-- Portfolio Fragility & Escape Probability
-- SEC Financial Statement Data Ingestion
-- Empirical Asset Pricing and Fundamental Risk
+4. **Feature Engineering and Machine-Learning Modelling**  
+   A set of 78 financial features is engineered from the fundamentals panel. Machine-learning models (Linear Regression, Random Forest, Histogram Gradient Boosting) are trained to predict **log market capitalisation**.
+
+5. **Residual-Based Mispricing Strategy and Backtesting**  
+   Residuals (actual minus predicted valuation) are used to construct annual long–short portfolios. These strategies are backtested over 2019–2025 to study whether residuals contain useful mispricing information.
 
 ---
 
-## Repository Structure (Research Code)
+## Repository Structure
 
 ```
-/data/bronze            Raw SEC extracts
-/data/silver            Cleaned/standardised fundamentals
-/data/gold              Final panel set for modeling
-/notebooks              Exploratory + model estimation notes
-/src/data_extract       SEC ETL pipeline
-/src/data_model         AR(1) + OU parameter estimation
-/src/portfolio          (planned) portfolio & escape simulations
+.
+├── data/
+│   ├── bronze/        # Raw SEC filings, ticker mappings
+│   ├── silver/        # Transformed financial datasets
+│   ├── gold/          # Modelling datasets
+│   ├── ml/            # Stored ML-ready data
+│   └── report/        # Data extracts used in the dissertation
+│
+├── notebooks/
+│   ├── 01_data_extract.ipynb
+│   ├── 02_data_prep.ipynb
+│   ├── 03_EDA.ipynb
+│   ├── 04_mean_reversion_ar1_ou.ipynb
+│   ├── 04_mean_reversion_ar1_Results.ipynb
+│   ├── 05_feature_engg.ipynb
+│   ├── 06_ML_Modelling.ipynb
+│   └── 08_Ticker_Attach_Check.ipynb
+│
+├── src/
+│   ├── data_extract/
+│   │   ├── bronze_extractor/
+│   │   ├── silver_transformer/
+│   │   └── gold_builder/
+│   ├── data_enrich/
+│   │   ├── annual_financials.py
+│   │   ├── ohlcv_to_panel.py
+│   │   ├── sic_mapping.py
+│   │   └── ticker_mapping.py
+│   └── data_model/
+│       └── ar1_model.py
+│
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## Author
+## Key Components
 
-**Agalya Ayyadurai**  
-MSc Financial Data Science — University of Surrey  
-🔗 LinkedIn: https://www.linkedin.com/in/agalya-ayyadurai-286517172/
+### **Notebooks (Main Workflow)**
+These notebooks correspond to each stage of the methodology presented in the dissertation:
+
+- **01_data_extract.ipynb** — Loading SEC 10-K datasets, handling zip extractions, ticker mapping  
+- **02_data_prep.ipynb** — Cleaning, validation, outlier checks, constructing annual financial panels  
+- **04_mean_reversion_ar1_ou.ipynb** — ADF, KPSS, AR(1), OU time-series analysis  
+- **05_feature_engg.ipynb** — Construction of 78 financial features  
+- **06_ML_Modelling.ipynb** — Model training, tuning, evaluation, residual analysis  
 
 ---
 
-## ⚠ Disclaimer
-This project is for academic research only and does not constitute investment advice.
+## Data Extraction Requirements
 
+Before running the pipeline, you must:
+
+1. Download the SEC 10-K fundamental datasets (ZIP files) from  
+   [SEC Financial Statement Data Sets](https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets)
+2. Place them inside `data/raw/`
+3. Follow instructions in **01_data_extract.ipynb**
+
+---
+
+## Reproducibility
+
+All results in the dissertation can be regenerated by extracting adn building the data and running notebooks.
+
+---
+
+## License
+
+This project is released under the MIT License.
